@@ -34,5 +34,23 @@ class Bingo_ProcessManager {
 	}
 };
 
+class Bingo_Job_Basis {
+	private:
+		processState_t state;
+	protected:
+		uint8_t ID;			
+		Bingo_Job_Basis(uint8_t prID) : ID(prID), state(NONE) {}
+		virtual void doInit() = 0;
+		virtual void doRun() = 0;
+	public:
+	  void update(uint8_t prID) {
+			if(prID != ID) { state = NONE; return; }
+			if(prID == ID && state == NONE) { state = SLEEP; return; }
+			if(state == SLEEP) { state = INIT; doInit(); return; }
+			if(state == INIT) { state = RUNNING; doRun(); return; }
+			if(state == RUNNING) { doRun(); return; }		
+		}
+};
+
 #endif	// BINGO_HPP
 

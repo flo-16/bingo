@@ -1,7 +1,9 @@
 #include "bingo.hpp"
+
 // Konstanten
 const uint8_t PIN_BUTTON     = GPIO_NUM_19;                     // Input-Button-Pin - LOW aktiv
 const uint8_t PROCESS_MAX    = 3;                               // Maximale Anzahl Prozesse
+
 // Globals
 uint8_t buttonFlag = 0;
 uint8_t processID = 0;

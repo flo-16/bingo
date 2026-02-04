@@ -5,9 +5,8 @@
 
 #include <Arduino.h>
 
-
 // Typen
-typedef enum processState_t { DONE, INIT, RUNNING } processState_t;
+typedef enum processState_t { NONE, SLEEP, INIT, RUNNING } processState_t;
 
 // Klassen
 class Bingo_Button {
@@ -20,6 +19,19 @@ class Bingo_Button {
 		void update(uint8_t &state) {
 				if(digitalRead(pin) == LOW) state++;
 		}
+};
+
+class Bingo_ProcessManager {
+	private:
+		uint8_t max;
+	public:
+		Bingo_ProcessManager(uint8_t m) : max(m) {}
+		void update(uint8_t &id, uint8_t state) {
+			if(state > 0) {
+				id++;
+				if(id > max) id = 1;
+		};
+	}
 };
 
 #endif	// BINGO_HPP

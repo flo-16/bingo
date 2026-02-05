@@ -6,7 +6,7 @@
 #include <Arduino.h>
 
 // Typen
-typedef enum processState_t { NONE, SLEEP, INIT, RUNNING } processState_t;
+typedef enum processState_t { NONE = 0, SLEEP, INIT, RUNNING } processState_t;
 
 // Klassen
 class Bingo_Button {
@@ -37,17 +37,19 @@ class Bingo_ProcessManager {
 class Bingo_Job_Basis {
 	private:
 		processState_t state;
+		enum waitTime { ID_CHANGE = 200	};
 	protected:
 		uint8_t ID;			
 		Bingo_Job_Basis(uint8_t prID) : ID(prID), state(NONE) {}
+		virtual void doSleep() = 0;
 		virtual void doInit() = 0;
 		virtual void doRun() = 0;
 	public:
 	  void update(uint8_t prID) {
 			if(prID != ID) { state = NONE; return; }
-			if(prID == ID && state == NONE) { state = SLEEP; return; }
-			if(state == SLEEP) { state = INIT; doInit(); return; }
-			if(state == INIT) { state = RUNNING; doRun(); return; }
+			if(prID == ID && state == NONE) { state = SLEEP; doSleep();delay(ID_CHANGE); return; }
+			if(state == SLEEP) { state = INIT; doInit(); delay(ID_CHANGE); return; }
+			if(state == INIT) { state = RUNNING; doRun(); delay(ID_CHANGE); return; }
 			if(state == RUNNING) { doRun(); return; }		
 		}
 };

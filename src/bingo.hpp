@@ -13,12 +13,8 @@ class Bingo_Button {
 	private:
 		uint8_t pin;
 	public:
-		Bingo_Button(uint8_t p) : pin(p) {
-				pinMode(pin, INPUT_PULLUP);
-		}
-		void update(uint8_t &state) {
-				if(digitalRead(pin) == LOW) state++;
-		}
+		Bingo_Button(uint8_t p) : pin(p) { pinMode(pin, INPUT_PULLUP); }
+		void update(uint8_t &state) { if(digitalRead(pin) == LOW) state++; }
 };
 
 class Bingo_ProcessManager {
@@ -26,12 +22,7 @@ class Bingo_ProcessManager {
 		uint8_t max;
 	public:
 		Bingo_ProcessManager(uint8_t m) : max(m) {}
-		void update(uint8_t &id, uint8_t state) {
-			if(state > 0) {
-				id++;
-				if(id > max) id = 1;
-		};
-	}
+		void update(uint8_t &id, uint8_t state);
 };
 
 class Bingo_Job_Basis {
@@ -45,14 +36,25 @@ class Bingo_Job_Basis {
 		virtual void doInit() = 0;
 		virtual void doRun() = 0;
 	public:
-	  void update(uint8_t prID) {
-			if(prID != ID) { state = NONE; return; }
-			if(prID == ID && state == NONE) { state = SLEEP; doSleep();delay(ID_CHANGE); return; }
-			if(state == SLEEP) { state = INIT; doInit(); delay(ID_CHANGE); return; }
-			if(state == INIT) { state = RUNNING; doRun(); delay(ID_CHANGE); return; }
-			if(state == RUNNING) { doRun(); return; }		
-		}
+	  void update(uint8_t prID);
 };
+
+// Implementationen
+
+void Bingo_ProcessManager::update(uint8_t &id, uint8_t state) {
+	if(state > 0) {
+		id++;
+		if(id > max) id = 1;
+	};
+}
+
+void Bingo_Job_Basis::update(uint8_t prID) {
+	if(prID != ID) { state = NONE; return; }
+	if(prID == ID && state == NONE) { state = SLEEP; doSleep(); delay(ID_CHANGE); return; }
+	if(state == SLEEP) { state = INIT; doInit(); delay(ID_CHANGE); return; }
+	if(state == INIT) { state = RUNNING; doRun(); delay(ID_CHANGE); return; }
+	if(state == RUNNING) { doRun(); return; }		
+}
 
 #endif	// BINGO_HPP
 

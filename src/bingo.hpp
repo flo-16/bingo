@@ -42,11 +42,11 @@ class Bingo_Job_Basis {
 // Implementationen
 
 void Bingo_ProcessManager::update(uint8_t &id, uint8_t state) {
-	if(state > 0) {
-		id++;
-		if(id > max) id = 1;
+ 	if(state > 0) {
+		uint8_t temp = id + 1;
+		id = temp % (max + 1);
 	};
-}
+ }
 
 void Bingo_Job_Basis::update(const uint8_t prID) {
 	if(prID != ID) { state = NONE; return; }

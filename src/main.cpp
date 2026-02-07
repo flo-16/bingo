@@ -2,6 +2,10 @@
 
 // Konstanten
 const uint8_t PIN_BUTTON     = GPIO_NUM_19;                     // Input-Button-Pin - LOW aktiv
+const gpios_t PIN_LEDS = { .pin =
+	{ GPIO_NUM_18, GPIO_NUM_3, GPIO_NUM_4, GPIO_NUM_5, GPIO_NUM_13, GPIO_NUM_14, GPIO_NUM_16, GPIO_NUM_17 }
+};
+
 const uint8_t PROCESS_MAX    = 2;                               // Maximale Anzahl Prozesse
 
 // Global
@@ -10,8 +14,9 @@ uint8_t processID = 0;																					// 0 .. PROCESS_MAX: 0 -> Idle
 uint8_t output = 0;																							// Bit 0..7 gesetzt -> HIGH
 
 // Instanzen
-Bingo_Button button(PIN_BUTTON);  															// Button-Objekt
-Bingo_ProcessManager processManager(PROCESS_MAX);  							// Prozess-Manager-Objekt mit PROCESS_MAX + 1 Prozessen
+Button button(PIN_BUTTON);  																		// Button-Objekt
+Manager processManager(PROCESS_MAX);  													// Prozess-Manager-Objekt mit PROCESS_MAX + 1 Prozessen
+Show show(PIN_LEDS);                                            // Show-Objekt mit LED-Pins
 
 // Funktionen
 void checkNull(uint8_t &rOut, const uint8_t prID) { if(prID == 0) rOut = 0; }
@@ -19,7 +24,8 @@ void checkNull(uint8_t &rOut, const uint8_t prID) { if(prID == 0) rOut = 0; }
 // Main
 void setup() {
 	Serial.begin(115200);
-	delay(1000);  // Warte auf Serial-Monitor
+	delay(1000);  																									// Warte auf Serial-Monitor
+	show.init();  																									// Initialisiere die Show (LEDs)
 	Serial.println("\nBingo gestartet.");
 }
 
@@ -27,6 +33,8 @@ void loop() {
 	button.update(buttonFlag);
 	processManager.update(processID, buttonFlag);
 	checkNull(output, processID);
+	// hier die Jobs aufrufen, z.B.:
+	show.update(output);
 
 	// Test Start
 	if (buttonFlag) {

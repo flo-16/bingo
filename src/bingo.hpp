@@ -31,15 +31,23 @@ class Job_Basis {
 	private:
 		processState_t state;
 		enum waitTime { ID_CHANGE = 200	};
-	protected:
-		uint8_t ID;			
-		Job_Basis(const uint8_t prID) : ID(prID), state(NONE) {}
-		virtual void doSleep() const = 0;
+	public:
+		const uint8_t ID;		
+		uint8_t &out;
+		uint16_t holdTime;
+		Job_Basis(const uint8_t prID, uint8_t &rOut, const uint16_t prHoldTime) : ID(prID), out(rOut), holdTime(prHoldTime), state(NONE) {}
 		virtual void doInit() const = 0;
 		virtual void doRun() const = 0;
-	public:
 	  void update(const uint8_t prID);
 };
+
+class  Job_Next : public Job_Basis {
+	public:
+		Job_Next(const uint8_t prID, uint8_t &rOut, const uint16_t prHoldTime) : Job_Basis(prID, rOut, prHoldTime) {}
+		virtual void doInit() const override { out = 0xFF; }
+		virtual void doRun() const override { out = 0x00; }
+};
+
 
 class Show {
 	private:
@@ -62,7 +70,7 @@ void Manager::update(uint8_t &id, uint8_t state) {
 
 void Job_Basis::update(const uint8_t prID) {
 	if(prID != ID) { state = NONE; return; }
-	if(prID == ID && state == NONE) { state = SLEEP; doSleep(); delay(ID_CHANGE); return; }
+	if(prID == ID && state == NONE) { state = SLEEP; out = 0; delay(ID_CHANGE); return; }
 	if(state == SLEEP) { state = INIT; doInit(); delay(ID_CHANGE); return; }
 	if(state == INIT) { state = RUNNING; doRun(); delay(ID_CHANGE); return; }
 	if(state == RUNNING) { doRun(); return; }		

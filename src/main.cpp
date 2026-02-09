@@ -17,6 +17,7 @@ uint8_t output = 0;																							// Bit 0..7 gesetzt -> HIGH
 Button button(PIN_BUTTON);  																		// Button-Objekt
 Manager processManager(PROCESS_MAX);  													// Prozess-Manager-Objekt mit PROCESS_MAX + 1 Prozessen
 Show show(PIN_LEDS);                                            // Show-Objekt mit LED-Pins
+Job_Next jobNext(1, output, 1000);  														// Prozess-ID = 1, Referenz auf output und Haltezeit von 1000 ms
 
 // Funktionen
 void checkNull(uint8_t &rOut, const uint8_t prID) { if(prID == 0) rOut = 0; }
@@ -33,6 +34,7 @@ void loop() {
 	button.update(buttonFlag);
 	processManager.update(processID, buttonFlag);
 	checkNull(output, processID);
+	jobNext.update(output);
 	// hier die Jobs aufrufen, z.B.:
 	show.update(output);
 
@@ -40,6 +42,8 @@ void loop() {
 	if (buttonFlag) {
 		Serial.print("Prozess-ID: ");
 		Serial.println(processID);
+		Serial.print("Output: ");
+		Serial.println(output, BIN);
 	}
 	// Test Ende
 	

@@ -6,8 +6,21 @@
 #include <Arduino.h>
 
 // Typen
-typedef enum { NONE = 0, SLEEP, INIT, RUNNING } processState_t;				// möglichr Prozess-Zustände
-typedef struct { uint8_t pin[8]; } gpios_t;													// nimmt LED-GPIOs auf
+typedef enum { NONE = 0, SLEEP, INIT, RUNNING } processState_t;										// möglichr Prozess-Zustände
+typedef struct { uint8_t pin[8]; } gpios_t;																				// nimmt LED-GPIOs auf
+typedef struct {
+	const uint8_t prMax;
+	const gpios_t leds;
+	const uint8_t btnPin;
+	uint8_t id;
+	uint8_t output;
+	uint8_t buttonFlag;
+	uint8_t bupressed;
+	processState_t prState;
+
+//	uint16_t jobHoldTime; 
+} Config_t;	// Konfigurationsstruktur
+
 //typedef gpios_t* pGpios_t;
 
 // Klassen

@@ -1,5 +1,17 @@
 #include "bingo.hpp"
 
+// Konfiguration
+Config_t co = {
+	.prMax = 2,
+	.leds = { GPIO_NUM_18, GPIO_NUM_3, GPIO_NUM_4, GPIO_NUM_5, GPIO_NUM_13, GPIO_NUM_14, GPIO_NUM_16, GPIO_NUM_17 },
+ 	.btnPin = GPIO_NUM_19,
+	.id = 0,
+	.output = 0,
+	.buttonFlag = 0,
+	.bupressed = 0,
+	.prState = NONE
+};
+
 // Konstanten
 const uint8_t PIN_BUTTON     = GPIO_NUM_19;                     // Input-Button-Pin - LOW aktiv
 const gpios_t PIN_LEDS = { .pin =

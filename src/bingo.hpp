@@ -48,7 +48,8 @@ class JobBasis {
 	public:
 		const uint8_t ID;		
 		uint8_t &out;
-		processState_t state;
+		mutable processState_t state;
+		mutable uint32_t timeStamp;
 		JobBasis(const uint8_t prID, uint8_t &rOut) : ID(prID), out(rOut), state(NONE) {}
 		virtual void doInit() const = 0;
 		virtual void doRun() const = 0;
@@ -57,12 +58,22 @@ class JobBasis {
 
 class  JobNext : public JobBasis {
 	public:
-		uint16_t holdTime;
-		uint8_t initVal;
+		const uint16_t holdTime;
+		const uint8_t initVal;
 		JobNext(const uint8_t prID, Config_t &rg, const uint16_t prHoldTime, const uint8_t prInitVal) :
 			JobBasis(prID, rg.output), holdTime(prHoldTime), initVal(prInitVal) {}
-		virtual void doInit() const override { out = initVal; }
-		virtual void doRun() const override { out = 0x00; }
+		virtual void doInit() const override;
+		virtual void doRun() const override;
+};
+
+class  JobPrev : public JobBasis {
+	public:
+		const uint16_t holdTime;
+		const uint8_t initVal;
+		JobPrev(const uint8_t prID, Config_t &rg, const uint16_t prHoldTime, const uint8_t prInitVal) :
+			JobBasis(prID, rg.output), holdTime(prHoldTime), initVal(prInitVal) {}
+		virtual void doInit() const override;
+		virtual void doRun() const override;
 };
 
 
@@ -74,10 +85,9 @@ void Manager::update(Config_t &rg) {
 		rg.id = temp % (max + 1);
 		rg.bupressed = 0;
 		rg.buttonFlag = 1;
+		rg.output = 0;
 	};
-	if(rg.id == 0) rg.output = 0;
 }
-
 
 void Show::init() {
 	for(uint8_t i = 0; i < 8; i++) {
@@ -95,13 +105,40 @@ void Show::update(const Config_t &rg) {
 }
 
 void JobBasis::update(const uint8_t prID) {
-
 	if(prID != ID) { state = NONE; return; }
-	if(prID == ID && state == NONE) { state = SLEEP; out = 0; return; }
+	if(prID == ID && state == NONE) { state = SLEEP; return; }
 	if(state == SLEEP) { state = INIT; doInit(); return; }
 	if(state == INIT) { state = RUNNING; doRun(); return; }
 	if(state == RUNNING) { doRun(); return; }		
 }
+
+void JobNext::doInit() const {
+	out = initVal;
+	timeStamp = millis() + holdTime;
+}
+
+void JobNext::doRun() const {
+	if(millis() >= timeStamp) {
+		out <<= 1;
+		if(out == 0) out = initVal;
+		timeStamp += holdTime;
+	}
+}
+
+void JobPrev::doInit() const {
+	out = initVal;
+	timeStamp = millis() + holdTime;
+	state = RUNNING;
+}
+
+void JobPrev::doRun() const {
+	if(millis() >= timeStamp) {
+		out >>= 1;
+		if(out == 0) out = initVal;
+		timeStamp += holdTime;
+	}
+}
+
 
 #endif	// BINGO_HPP
 

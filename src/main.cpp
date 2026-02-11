@@ -14,26 +14,37 @@ Config_t co = {
 Button button(co);  																		// Button-Objekt mit Referenz auf Konfigurationsstruktur
 Manager manager(co);  																	// Prozess-Manager-Objekt mit Referenz auf Konfigurationsstruktur
 Show show(co);                                          // Show-Objekt mit Referenz auf Konfigurationsstruktur
-JobNext jobNext(1, co, 1000, 0b00000001);  				  		//Prozess-ID = 1, Referenz auf Konfigurationsstruktur, Haltezeit von 1000 ms und Initialwert 0xFF
+JobNext jobNext(1, co, 1000, 0b00000001);  				  		//Prozess-ID = 1, Referenz auf Konfigurationsstruktur, Haltezeit von 1000 ms und Initialwert 1
+JobPrev jobPrev(2, co, 500, 0b10000000);  				  		//Prozess-ID = 2, Referenz auf Konfigurationsstruktur, Haltezeit von 500 ms und Initialwert 128
+
+void test(Config_t &rg) {
+	uint8_t static var = 0;
+	if(var != rg.output) {
+		var = rg.output;
+		Serial.println("Output: " + String(var));
+	}
+}
 
 // Main
 void setup() {
 	Serial.begin(115200);
 	delay(1000);  																									// Warte auf Serial-Monitor
 	show.init();  																									// Initialisiere die Show (LEDs)
-	Serial.println("\nBingo gestartet.");
+	Serial.println("\nApp gestartet.");
 }
 
 void loop() {
 	button.update(co);
 	manager.update(co);
 	jobNext.update(co.id);																					// Aktualisiere den Prozess-Job mit der aktuellen ID
+	jobPrev.update(co.id);																					// Aktualisiere den Prozess-Job mit der aktuellen ID
 	show.update(co);
 
 	// Test Start
 	if (co.buttonFlag == 1) {
-		Serial.println("ID: " + String(co.id) + " Output: " + String(co.output)); delay(100); 					// Debug-Ausgabe
+		Serial.println("ID: " + String(co.id)); delay(100); 					// Debug-Ausgabe
 	}
+	test(co);
 	// Test Ende
 
 	if(co.buttonFlag == 1) {

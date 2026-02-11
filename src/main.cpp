@@ -1,42 +1,44 @@
 #include "bingo.hpp"
 
-// Konstanten
-const uint8_t PIN_BUTTON     = GPIO_NUM_19;                     // Input-Button-Pin - LOW aktiv
-const uint8_t PROCESS_MAX    = 2;                               // Maximale Anzahl Prozesse
+// Konfiguration
+Config_t co = {
+	.prMax = 2,
+	.leds = { GPIO_NUM_18, GPIO_NUM_3, GPIO_NUM_4, GPIO_NUM_5, GPIO_NUM_13, GPIO_NUM_14, GPIO_NUM_16, GPIO_NUM_17 },
+ 	.btnPin = GPIO_NUM_19,
+	.id = 0,
+	.output = 0,
+	.buttonFlag = 0,
+	.bupressed = 0
+};
 
-// Global
-uint8_t buttonFlag = 0;																					// Button Down -> >0
-uint8_t processID = 0;																					// 0 .. PROCESS_MAX: 0 -> Idle
-uint8_t output = 0;																							// Bit 0..7 gesetzt -> HIGH
-
-// Instanzen
-Bingo_Button button(PIN_BUTTON);  															// Button-Objekt
-Bingo_ProcessManager processManager(PROCESS_MAX);  							// Prozess-Manager-Objekt mit PROCESS_MAX + 1 Prozessen
-
-// Funktionen
-void checkNull(uint8_t &rOut, const uint8_t prID) { if(prID == 0) rOut = 0; }
+Button button(co);  																		// Button-Objekt mit Referenz auf Konfigurationsstruktur
+Manager manager(co);  																	// Prozess-Manager-Objekt mit Referenz auf Konfigurationsstruktur
+Show show(co);                                          // Show-Objekt mit Referenz auf Konfigurationsstruktur
+JobNext jobNext(1, co, 1000, 0b00000001);  				  		//Prozess-ID = 1, Referenz auf Konfigurationsstruktur, Haltezeit von 1000 ms und Initialwert 0xFF
 
 // Main
 void setup() {
 	Serial.begin(115200);
-	delay(1000);  // Warte auf Serial-Monitor
+	delay(1000);  																									// Warte auf Serial-Monitor
+	show.init();  																									// Initialisiere die Show (LEDs)
 	Serial.println("\nBingo gestartet.");
 }
 
 void loop() {
-	button.update(buttonFlag);
-	processManager.update(processID, buttonFlag);
-	checkNull(output, processID);
+	button.update(co);
+	manager.update(co);
+	jobNext.update(co.id);																					// Aktualisiere den Prozess-Job mit der aktuellen ID
+	show.update(co);
 
 	// Test Start
-	if (buttonFlag) {
-		Serial.print("Prozess-ID: ");
-		Serial.println(processID);
+	if (co.buttonFlag == 1) {
+		Serial.println("ID: " + String(co.id) + " Output: " + String(co.output)); delay(100); 					// Debug-Ausgabe
 	}
 	// Test Ende
-	
-	if(buttonFlag) {
-		buttonFlag = 0;
+
+	if(co.buttonFlag == 1) {
+		co.buttonFlag = 0;
 		delay(200);  // Entprellzeit
 	}
+	delay(100);  // Loop-Delay
 }

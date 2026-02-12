@@ -6,37 +6,28 @@
 #include <Arduino.h>
 
 // Typen
-typedef enum { NONE = 0, SLEEP, INIT, RUNNING } processState_t;										// möglichr Prozess-Zustände
-typedef struct { uint8_t pin[8]; } gpios_t;																				// nimmt LED-GPIOs auf
+typedef enum { NONE = 0, SLEEP, INIT, RUNNING } prState_t;													// möglichr Prozess-Zustände
+typedef struct { uint8_t pin[8]; } ledPins_t;																				// nimmt LED-GPIOs auf
 typedef struct {
 	const uint8_t prMax;
-	const gpios_t leds;
+	const ledPins_t leds;
 	const uint8_t btnPin;
 	uint8_t id;
 	uint8_t output;
-	uint8_t buttonFlag;
-	uint8_t bupressed;
 } Config_t;	// Konfigurationsstruktur
 
 class Button {
 	private:
 		const uint8_t pin;
+		const uint8_t prMax;		
 	public:
-		Button(Config_t &rg) : pin(rg.btnPin) { pinMode(pin, INPUT_PULLUP); }
-		void update(Config_t &rg) { if(digitalRead(pin) == LOW) rg.bupressed++; }
-};
-
-class Manager {
-	private:
-		uint8_t max;
-	public:
-		Manager(Config_t &rg) : max(rg.prMax) {}
+		Button(Config_t &rg) : pin(rg.btnPin), prMax(rg.prMax) { pinMode(pin, INPUT_PULLUP); }
 		void update(Config_t &rg);
 };
 
 class Show {
 	private:
-		const gpios_t leds; 
+		const ledPins_t leds; 
 		uint8_t dat;
 	public:
 		Show(Config_t &rg):leds(rg.leds), dat(0) {}
@@ -48,7 +39,7 @@ class JobBasis {
 	public:
 		const uint8_t ID;		
 		uint8_t &out;
-		mutable processState_t state;
+		mutable prState_t state;
 		mutable uint32_t timeStamp;
 		JobBasis(const uint8_t prID, uint8_t &rOut) : ID(prID), out(rOut), state(NONE) {}
 		virtual void doInit() const = 0;
@@ -76,18 +67,18 @@ class  JobPrev : public JobBasis {
 		virtual void doRun() const override;
 };
 
-
 // Implementationen
 
-void Manager::update(Config_t &rg) {
- 	if(rg.bupressed > 0) {
-		uint8_t temp = rg.id + 1;
-		rg.id = temp % (max + 1);
-		rg.bupressed = 0;
-		rg.buttonFlag = 1;
+void Button::update(Config_t &rg) {
+	static uint32_t lastTime = 0;
+	uint32_t now = millis();
+	if((now > lastTime) && (digitalRead(pin) == LOW)) {
+		lastTime = now + 200;  // Entprellzeit
+		rg.id++;
+		rg.id %= prMax;
 		rg.output = 0;
-	};
-}
+	}
+}	
 
 void Show::init() {
 	for(uint8_t i = 0; i < 8; i++) {
@@ -138,7 +129,6 @@ void JobPrev::doRun() const {
 		timeStamp += holdTime;
 	}
 }
-
 
 #endif	// BINGO_HPP
 

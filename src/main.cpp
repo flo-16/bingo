@@ -9,10 +9,14 @@ Config_t co = {
 	.output = 0
  };
 
-Button button(co);  																		// Button-Objekt mit Referenz auf Konfigurationsstruktur
-Show show(co);                                          // Show-Objekt mit Referenz auf Konfigurationsstruktur
-JobNext jobNext(1, co, 1000, 0b00000001);  				  		//Prozess-ID = 1, Referenz auf Konfigurationsstruktur, Haltezeit von 1000 ms und Initialwert 1
-JobPrev jobPrev(2, co, 500, 0b10000000);  				  		//Prozess-ID = 2, Referenz auf Konfigurationsstruktur, Haltezeit von 500 ms und Initialwert 128
+uint8_t f0(const uint16_t hold);
+uint8_t f1(const uint16_t hold);
+uint8_t f2(const uint16_t hold);
+uint8_t (*funcArr[])(const uint16_t) = { f0, f1, f2 };  					// Array von Zeigern auf die Prozess-Funktionen
+uint16_t holdTime[] = { 0, 1000, 500 };  													// Haltezeiten für die Prozess-Funktionen
+
+Button button(co);  																							// Button-Objekt mit Referenz auf Konfigurationsstruktur
+Show show(co);                                          					// Show-Objekt mit Referenz auf Konfigurationsstruktur
 
 void test(Config_t &rg) {
 	uint8_t static var = 0;
@@ -32,13 +36,38 @@ void setup() {
 
 void loop() {
 	button.update(co);
-	jobNext.update(co.id);																					// Aktualisiere den Prozess-Job mit der aktuellen ID
-	jobPrev.update(co.id);																					// Aktualisiere den Prozess-Job mit der aktuellen ID
+	co.output = funcArr[co.id](holdTime[co.id]);										// Rufe die aktuelle Prozess-Funktion auf
 	show.update(co);
 
-	// Test Start
 	test(co);
-	// Test Ende
 
-	delay(100);  // Loop-Delay
+	delay(100);  
+}
+
+// Implementierungen der Prozess-Funktionen
+
+uint8_t f0(const uint16_t hold) { return 0b00000000; }
+
+uint8_t f1(const uint16_t hold) {
+	const uint8_t pattern = 0b00000001;  														// Initial-Muster
+	static uint32_t nextTime = 0;
+	static uint8_t data = 0;
+	uint32_t now = millis();
+	if(now > nextTime) {
+		nextTime = now + hold;
+		if(data == 0) data = pattern; else data <<= 1;
+	}
+	return data; 
+}
+
+uint8_t f2(const uint16_t hold) {
+	const uint8_t pattern = 0b10000000;  														// Initial-Muster
+	static uint32_t nextTime = 0;
+	static uint8_t data = 0;
+	uint32_t now = millis();
+	if(now > nextTime) {
+		nextTime = now + hold;
+		if(data == 0) data = pattern; else data >>= 1;
+	}
+	return data; 
 }

@@ -11,6 +11,8 @@ typedef struct {
 	const uint8_t prMax;
 	const ledPins_t leds;
 	const uint8_t btnPin;
+	const uint16_t holdTime[3];
+	const uint8_t pattern[3];
 	uint8_t id;
 	uint8_t output;
 } Config_t;	// Konfigurationsstruktur
@@ -22,6 +24,15 @@ class Button {
 	public:
 		Button(Config_t &rg) : pin(rg.btnPin), prMax(rg.prMax) { pinMode(pin, INPUT_PULLUP); }
 		void update(Config_t &rg);
+};
+
+class Handler {
+	private:
+		Config_t &rg;
+		uint32_t nextTime;
+	public:
+		Handler(Config_t &rg) : rg(rg), nextTime(0) {}
+		void update();		
 };
 
 class Show {
@@ -46,6 +57,22 @@ void Button::update(Config_t &rg) {
 		rg.output = 0;
 	}
 }	
+
+void Handler::update() {
+	if(rg.id == 0) {
+		rg.output = 0;
+		return;
+	}
+	uint32_t now = millis();
+	if(now < nextTime) return;
+	nextTime = now + rg.holdTime[rg.id];
+	switch (rg.id) {
+	case 1: if(rg.output == 0) rg.output = rg.pattern[1]; else rg.output <<= 1;
+		break;
+	case 2: if(rg.output == 0) rg.output = rg.pattern[2]; else rg.output >>= 1;
+		break;
+	}
+}
 
 void Show::init() {
 	for(uint8_t i = 0; i < 8; i++) {

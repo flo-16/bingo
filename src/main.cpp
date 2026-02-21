@@ -35,5 +35,5 @@ void loop() {
 	handler.update();
 	show.update();
 	test(co);
-	delay(100);  
+	delay(10);  																										// Kurze Pause, um CPU-Last zu reduzieren
 }

@@ -54,25 +54,19 @@ void Button::update() {
 	uint32_t now = millis();
 	if((now > lastTime) && (digitalRead(rg.btnPin) == LOW)) {
 		lastTime = now + 200;  // Entprellzeit
-		rg.id++;/* Config_t &rg */
+		rg.id++;
 		rg.id %= rg.prMax;
-		rg.output = 0;
 	}
 }	
 
 void Handler::update() {
-	if(rg.id == 0) {
-		rg.output = 0;
-		return;
-	}
 	uint32_t now = millis();
 	if(now < nextTime) return;
 	nextTime = now + rg.holdTime[rg.id];
 	switch (rg.id) {
-	case 1: if(rg.output == 0) rg.output = rg.pattern[1]; else rg.output <<= 1;
-		break;
-	case 2: if(rg.output == 0) rg.output = rg.pattern[2]; else rg.output >>= 1;
-		break;
+		case 0: rg.output = 0; break;		
+		case 1: if(rg.output == 0) rg.output = rg.pattern[1]; else rg.output <<= 1; break;
+		case 2: if(rg.output == 0) rg.output = rg.pattern[2]; else rg.output >>= 1; break;
 	}
 }
 

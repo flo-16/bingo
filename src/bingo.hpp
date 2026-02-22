@@ -85,6 +85,9 @@ void Handler::update() {
 		case 1: if(rg.output == 0) rg.output = rg.pattern[1]; else rg.output <<= 1; break;
 		case 2: if(rg.output == 0) rg.output = rg.pattern[2]; else rg.output >>= 1; break;
 	}
+	if(rg.click == LONGCLICK) {
+		rg.output = 0xFF;																													// Natürlich Quatch, Implementation später				
+	}
 	rg.click = NOCLICK;
 }
 

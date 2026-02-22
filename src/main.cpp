@@ -24,6 +24,9 @@ void test(Config_t &rg) {
 		var = rg.output;
 		Serial.println("Output: " + String(var));
 	}
+	if(rg.click != NOCLICK) {
+		Serial.println("Click: " + String(rg.click));
+	}
 }
 
 void setup() {

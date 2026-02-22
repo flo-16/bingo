@@ -17,6 +17,7 @@ typedef struct {
 	uint8_t id;
 	uint8_t output;
 	ClickType_t click;
+	char msg[20];
 } Config_t;	
 
 class Button {
@@ -32,8 +33,9 @@ class Handler {
 	private:
 		Config_t &rg;
 		uint32_t nextTime;
+		uint8_t longClickCounter;
 	public:
-		Handler(Config_t &rg) : rg(rg), nextTime(0) {}
+		Handler(Config_t &rg) : rg(rg), nextTime(0), longClickCounter(0) {}
 		void update();		
 };
 
@@ -86,8 +88,10 @@ void Handler::update() {
 		case 2: if(rg.output == 0) rg.output = rg.pattern[2]; else rg.output >>= 1; break;
 	}
 	if(rg.click == LONGCLICK) {
-		rg.output = 0xFF;																													// Natürlich Quatch, Implementation später				
-	}
+		longClickCounter++;
+		strncpy(rg.msg, ("Long-Click " + String(longClickCounter)).c_str(), sizeof(rg.msg) - 1);
+		rg.msg[sizeof(rg.msg) - 1] = '\0'; 																		// Sicherstellen, dass die Nachricht nullterminiert ist		}
+	}																	
 	rg.click = NOCLICK;
 }
 

@@ -24,8 +24,9 @@ void test(Config_t &rg) {
 		var = rg.output;
 		Serial.println("Output: " + String(var));
 	}
-	if(rg.click != NOCLICK) {
-		Serial.println("Click: " + String(rg.click));
+	if(rg.msg[0] != '\0') {
+		Serial.println(String(rg.msg));
+		strcpy(rg.msg, "\0");  																				// Lösche die Nachricht nach Ausgabe
 	}
 }
 

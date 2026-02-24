@@ -87,11 +87,7 @@ void Handler::update() {
 		case 1: if(rg.output == 0) rg.output = rg.pattern[1]; else rg.output <<= 1; break;
 		case 2: if(rg.output == 0) rg.output = rg.pattern[2]; else rg.output >>= 1; break;
 	}
-/* 	if(rg.click == LONGCLICK) {
-		rg.ltClick++;
-		delay(20);  																														// Entprellzeit
-	}
- */}
+}
 
 Show::Show(Config_t &rg) : rg(rg), dat(0) {
 	for(uint8_t i = 0; i < 8; i++) {

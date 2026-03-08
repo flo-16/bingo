@@ -1,13 +1,6 @@
 #include "bingo.hpp"
 
-#define LONG_PRESS_TIME 400  																			// Zeit in ms, die für einen Longclick benötigt wird
-
-Config_t co = {																										// globale Konfigurationsstruktur mit allen relevanten Parametern
-	.prMax = 3,
-	.leds = { GPIO_NUM_18, GPIO_NUM_3, GPIO_NUM_4, GPIO_NUM_5, GPIO_NUM_13, GPIO_NUM_14, GPIO_NUM_16, GPIO_NUM_17 },
- 	.btnPin = GPIO_NUM_19,
-	.holdTime = { 20, 1000, 500 },
-	.pattern = { 0, 0b00000001, 0b10000000 },
+config_t co = {																										// globale Konfigurationsstruktur mit allen relevanten Parametern
 	.id = 0,
 	.ltClick = 0,
 	.output = 0,
@@ -18,7 +11,7 @@ Button button(co, LONG_PRESS_TIME);  															// Button-Objekt mit Referen
 Handler handler(co);  																						// Handler-Objekt mit Referenz auf Konfigurationsstruktur
 Show show(co);                                          					// Show-Objekt mit Referenz auf Konfigurationsstruktur
 
-void test(Config_t &rg);																					// Testfunktion, um Änderungen an der Konfiguration zu überwachen.
+void test(config_t &rg);																					// Testfunktion, um Änderungen an der Konfiguration zu überwachen.
 
 void setup() {
 	Serial.begin(115200);
@@ -34,7 +27,7 @@ void loop() {
 	delay(10);  																										// Kurze Pause, um CPU-Last zu reduzieren
 }
 
-void test(Config_t &rg) {
+void test(config_t &rg) {
 	uint8_t static var = 0;
 	if(var != rg.output) {
 		var = rg.output;

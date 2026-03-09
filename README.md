@@ -1,12 +1,11 @@
 # BINGO #
 
-### Bingo hat absolut nichts mit dem beliebten Spiel zu tun! ###
+## 😉 Bingo hat absolut nichts mit dem beliebten Spiel zu tun!
 
 Es handelt sich hier um einen frei erfundenen Projektnamen(mangels einer vernünftigen Idee)!
 
 #### Inhalt: ####
-Verschiedene Kommunikationsarten zwischen Klasseninstanzen:
+Verschiedene Kommunikationsarten zwischen Klasseninstanzen:<br>
+Vererbung - Funktionszeiger - Handler - Referenzen<br>
 
-Vererbung - Funktionszeiger - Handler
-
-Hooks sind nicht implementiert.
+Es existieren verschiedene Versionen, die im __tar.gz Vormat__ ausgescheckt werden können.

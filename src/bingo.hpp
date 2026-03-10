@@ -1,23 +1,22 @@
 #ifndef BINGO_HPP
 #define BINGO_HPP
-#pragma once
 #include <Arduino.h>
 
-// Globale Konstanten
+// Globale Konstanten - Pin- und Zeitdefinitionen
+const uint8_t LEDS[] = { GPIO_NUM_18, GPIO_NUM_3, GPIO_NUM_4, GPIO_NUM_5, GPIO_NUM_13, GPIO_NUM_14, GPIO_NUM_16, GPIO_NUM_17 };
+const uint8_t BTN_PIN = GPIO_NUM_19;																// Button-Pin				
 const uint16_t LONG_PRESS_TIME = 400;  															// Zeit in ms, die für einen Longclick benötigt wird
 const uint8_t PR_MAX = 3;																						// Anzahl der Pattern
-const uint8_t LEDS[] = { GPIO_NUM_18, GPIO_NUM_3, GPIO_NUM_4, GPIO_NUM_5, GPIO_NUM_13, GPIO_NUM_14, GPIO_NUM_16, GPIO_NUM_17 };
-const uint8_t BTN_PIN = GPIO_NUM_19;
 const uint16_t HOLDTIME[] = { 20, 1000, 500 };											// Pausen zwischen den Mustern in ms
 const uint8_t PATTERN[] = { 0, 0b00000001, 0b10000000 };						// Ausgangsmuster für die Modi 1 und 2
 
 // Typdefinitionen
-typedef enum { NOCLICK = 0, SHORTCLICK, LONGCLICK } clickType_t;
+typedef enum { NOCLICK = 0, SHORTCLICK, LONGCLICK } clickType_t;		
 typedef struct {
-	uint8_t id;
-	uint8_t ltClick; 
-	uint8_t output;
-	clickType_t click;
+	uint8_t id;																												// Programm-Modus
+	uint8_t ltClick; 																									// Anzahl der Longclicks	
+	uint8_t output;																										// aktuelles Ausgangsmuster
+	clickType_t click;																								// Click-Status
 } config_t;	
 
 // Klassendefinitionen

@@ -11,12 +11,22 @@ const uint16_t HOLDTIME[] = { 20, 1000, 500 };											// Pausen zwischen den 
 const uint8_t PATTERN[] = { 0, 0b00000001, 0b10000000 };						// Ausgangsmuster für die Modi 1 und 2
 
 // Typdefinitionen
+typedef struct {
+	const uint8_t		leds[8];																						// LED-Pins
+	const uint8_t		btn;																								// Button-Pin
+	const uint16_t	longPress;																					// Zeit in ms, die für einen Longclick benötigt wird
+	const uint8_t 	prMax;																							// Anzahl der Pattern
+	const uint16_t 	hold[3];																						// Pausen zwischen den Mustern in ms
+	const uint8_t 	pattern[3];																					// Ausgangsmuster für die Modi 1 und 2	
+} rock_t;
+
 typedef enum { NOCLICK = 0, SHORTCLICK, LONGCLICK } clickType_t;		
 typedef struct {
 	uint8_t id;																												// Programm-Modus
 	uint8_t ltClick; 																									// Anzahl der Longclicks	
 	uint8_t output;																										// aktuelles Ausgangsmuster
 	clickType_t click;																								// Click-Status
+	const rock_t *rPtr;																										// Zeiger auf die globale Konfigurationsstruktur
 } config_t;	
 
 // Klassendefinitionen

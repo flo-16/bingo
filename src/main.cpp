@@ -1,10 +1,20 @@
 #include "bingo.hpp"
 
+const rock_t rock = {																							// globale Konfigurationsstruktur mit allen relevanten Parametern
+	.leds 			= { GPIO_NUM_18, GPIO_NUM_3, GPIO_NUM_4, GPIO_NUM_5, GPIO_NUM_13, GPIO_NUM_14, GPIO_NUM_16, GPIO_NUM_17 },
+	.btn 				= GPIO_NUM_19,
+	.longPress 	=	400,
+	.prMax 			= 3,
+	.hold 			= { 20, 1000, 500 },
+	.pattern 		= { 0, 0b00000001, 0b10000000 }
+ };
+
 config_t co = {																										// globale Konfigurationsstruktur mit allen relevanten Parametern
-	.id = 0,
-	.ltClick = 0,
-	.output = 0,
-	.click = NOCLICK
+	.id 				= 0,
+	.ltClick 		= 0,
+	.output 		= 0,
+	.click 			= NOCLICK,
+	.rPtr 			= &rock
  };
 
 Button button(co, LONG_PRESS_TIME);  															// Button-Objekt mit Referenz auf Konfigurationsstruktur

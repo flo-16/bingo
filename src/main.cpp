@@ -17,7 +17,7 @@ config_t co = {																										// globale Konfigurationsstruktur mit a
 	.rPtr 			= &rock
  };
 
-Button button(co, LONG_PRESS_TIME);  															// Button-Objekt mit Referenz auf Konfigurationsstruktur
+Button button(co);  																							// Button-Objekt mit Referenz auf Konfigurationsstruktur
 Handler handler(co);  																						// Handler-Objekt mit Referenz auf Konfigurationsstruktur
 Show show(co);                                          					// Show-Objekt mit Referenz auf Konfigurationsstruktur
 

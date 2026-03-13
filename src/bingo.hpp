@@ -15,11 +15,11 @@ typedef struct {
 typedef enum { NOCLICK = 0, SHORTCLICK, LONGCLICK } clickType_t;			// Klick-Status als Enumeration
 
 typedef struct {
-	uint8_t id;																													// Programm-Modus
-	uint8_t ltClick; 																										// Anzahl der Longclicks	
-	uint8_t output;																											// aktuelles Ausgangsmuster
-	clickType_t click;																									// Click-Status
-	const rock_t *rPtr;																									// Zeiger auf die globale Konstantenstruktur
+	uint8_t 				id;																									// Programm-Modus
+	uint8_t 				ltClick; 																						// Anzahl der Longclicks	
+	uint8_t 				output;																							// aktuelles Ausgangsmuster
+	clickType_t 		click;																							// Click-Status
+	const rock_t 		*rPtr;																							// Zeiger auf die globale Konstantenstruktur
 } config_t;	
 
 // Klassendefinitionen
@@ -99,7 +99,7 @@ Show::Show(config_t &rg) : rg(rg), dat(0) {
 }
 
 void Show::update() {
-	if(dat != rg.output) return;
+	if(dat == rg.output) return;
 	dat = rg.output;
 	for(uint8_t i = 0; i < 8; i++) {
 		digitalWrite(rg.rPtr->leds[i], (dat >> i) & 0x01);

@@ -5,12 +5,11 @@ const rock_t rock = {																							// globale Konfigurationsstruktur mi
 	.btn 				= GPIO_NUM_19,
 	.longPress 	=	400,
 	.prMax 			= 3,
-	.hold 			= { 20, 1000, 500 },
-	.pattern 		= { 0, 0b00000001, 0b10000000 }
+	.hold 			= { 20, 1000, 500 }
  };
 
 config_t co = {																										// globale Konfigurationsstruktur mit allen relevanten Parametern
-	.id 				= 0,
+	.mode 			= STAY,
 	.ltClick 		= 0,
 	.output 		= 0,
 	.click 			= NOCLICK,

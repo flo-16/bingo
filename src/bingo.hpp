@@ -9,13 +9,13 @@ typedef struct {
 	const uint16_t	longPress;																					// Zeit in ms, die für einen Longclick benötigt wird
 	const uint8_t 	prMax;																							// Anzahl der Pattern
 	const uint16_t 	hold[3];																						// Pausen zwischen den Mustern in ms
-	const uint8_t 	pattern[3];																					// Ausgangsmuster für die Modi 1 und 2	
 } rock_t;
 
 typedef enum { NOCLICK = 0, SHORTCLICK, LONGCLICK } clickType_t;			// Klick-Status als Enumeration
+typedef enum { STAY = 0, FORWARD, BACKWARD } modeType_t;							// Programm-Modi als Enumeration
 
 typedef struct {
-	uint8_t 				id;																									// Programm-Modus
+	modeType_t 			mode;																								// aktueller Modus
 	uint8_t 				ltClick; 																						// Anzahl der Longclicks	
 	uint8_t 				output;																							// aktuelles Ausgangsmuster
 	clickType_t 		click;																							// Click-Status
@@ -23,7 +23,7 @@ typedef struct {
 } config_t;	
 
 // Klassendefinitionen
-class Button {
+class Button {																												// Input: Click, Output: Click-Status
 	private:
 		config_t &rg;
 	public:
@@ -31,16 +31,19 @@ class Button {
 		void update();
 };
 
-class Handler {
+class Handler {																												// Input: Click-Status, Output: Modus, Longclick-Zähler, Ausgangsmuster
 	private:
 		config_t &rg;
 		uint32_t nextTime;
+		void shortClick();
+		void shortLoop();
+		void longClick();
 	public:
 		Handler(config_t &rg) : rg(rg), nextTime(0) {}
 		void update();		
 };
 
-class Show {
+class Show {																													// Input: Ausgangsmuster, Output: LED-Zustand
 	private:
 		config_t &rg;
 		uint8_t dat;
@@ -68,27 +71,46 @@ void Button::update() {
 		uint8_t c0 = digitalRead(rg.rPtr->btn);
 		if(c0 == LOW) {
 			busy = true;
-			nextTime = millis() + rg.rPtr->longPress;  												// Warte auf möglichen Longclick
-			delay(10);  																											// Entprellzeit
+			nextTime = millis() + rg.rPtr->longPress;  											// Warte auf möglichen Longclick
+			delay(10);  																										// Entprellzeit
 		}
 		rg.click = NOCLICK;
 	}
 }	
 
-void Handler::update() {
-	if(rg.click == SHORTCLICK) {		
-		rg.click = NOCLICK;		
-		rg.id++;
-		rg.id %= rg.rPtr->prMax;  																				// Modulo-Operation, um innerhalb der Anzahl der Pattern zu bleiben
-	}
+void Handler::shortClick() {
+	uint8_t temp = rg.mode + 1; 
+	temp %= rg.rPtr->prMax;  																						// Modulo-Operation, um innerhalb der Anzahl der Pattern zu bleiben	
+	rg.mode = static_cast<modeType_t>(temp);  													// Modulo-Ergebnis in Modus-Enumeration umwandeln
+	rg.click = NOCLICK;		
+};
+
+void Handler::shortLoop() {
 	uint32_t now = millis();
 	if(now < nextTime) return;
-	nextTime = now + rg.rPtr->hold[rg.id];
-	switch (rg.id) {
-		case 0: rg.output = 0; break;		
-		case 1: if(rg.output == 0) rg.output = rg.rPtr->pattern[rg.id]; else rg.output <<= 1; break;
-		case 2: if(rg.output == 0) rg.output = rg.rPtr->pattern[rg.id]; else rg.output >>= 1; break;
+	nextTime = now + rg.rPtr->hold[rg.mode];
+	switch (rg.mode) {
+		case STAY: rg.output = 0; break;
+		case FORWARD:  { uint8_t temp = rg.output << 1; rg.output = (!temp) ? 0b00000001 : temp; } break;
+		case BACKWARD: { uint8_t temp = rg.output >> 1; rg.output = (!temp) ? 0b10000000 : temp; } break;
 	}
+	Serial.println("Output: " + String(rg.output));
+}
+
+void Handler::longClick() {
+	uint8_t temp = rg.ltClick + 1;  																		// Longclick incrementieren
+	Serial.println("Long-Clicks: " + String(temp));											// um delay zu vermeiden, wird der Zähler inkrementiert und nicht direkt im Handler
+	rg.ltClick = temp;  																								// Longclick-Zähler zurücksetzen
+	rg.click = NOCLICK; 
+}
+
+void Handler::update() {
+	switch (rg.click) {
+		case NOCLICK: break;
+		case SHORTCLICK: shortClick(); break;
+		case LONGCLICK: longClick(); break;	
+	}
+	shortLoop();
 }
 
 Show::Show(config_t &rg) : rg(rg), dat(0) {
